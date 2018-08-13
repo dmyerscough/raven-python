@@ -7,10 +7,11 @@ raven.transport.http
 """
 from __future__ import absolute_import
 
-from raven.utils.compat import string_types, urllib2
+import requests
 from raven.conf import defaults
 from raven.exceptions import APIError, RateLimited
 from raven.transport.base import Transport
+from raven.utils.compat import string_types, urllib2
 from raven.utils.http import urlopen
 
 
@@ -32,15 +33,13 @@ class HTTPTransport(Transport):
         """
         Sends a request to a remote webserver using HTTP POST.
         """
-        req = urllib2.Request(url, headers=headers)
-
         try:
-            response = urlopen(
-                url=req,
+            response = requests.post(
+                url=url,
                 data=data,
                 timeout=self.timeout,
-                verify_ssl=self.verify_ssl,
-                ca_certs=self.ca_certs,
+                verify=self.verify_ssl,
+                headers=headers,
             )
         except urllib2.HTTPError as exc:
             msg = exc.headers.get('x-sentry-error')
